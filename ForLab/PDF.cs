@@ -7,6 +7,8 @@ using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
+using System.Windows.Forms;
+using System.Drawing;
 
 namespace ForLab
 {
@@ -42,7 +44,7 @@ namespace ForLab
             this.Text = text;
         }
     }
-    public class MyLocationTextExtractionStrategy : LocationTextExtractionStrategy
+    public class PDFTextExtractionStrategy : LocationTextExtractionStrategy
     {
         //Hold each coordinate
         public List<RectAndText> myPoints = new List<RectAndText>();
@@ -54,7 +56,7 @@ namespace ForLab
         //How to compare strings
         public System.Globalization.CompareOptions CompareOptions { get; set; }
 
-        public MyLocationTextExtractionStrategy(System.Globalization.CompareOptions compareOptions = System.Globalization.CompareOptions.None)
+        public PDFTextExtractionStrategy(System.Globalization.CompareOptions compareOptions = System.Globalization.CompareOptions.None)
         {
             
             this.CompareOptions = compareOptions;
@@ -115,6 +117,79 @@ namespace ForLab
                 }
             }
             return targetRectAndText;
+        }
+        public static void InsetStringToPDF(string stringToInsert, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, LocationToInsert locationToInsert, Point offsetInsertion)
+        {
+            string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "TAHOMA.TTF");
+            var baseFont = BaseFont.CreateFont(ttf, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            var importedPage = writer.GetImportedPage(reader, pageNum);
+            var contentByte = writer.DirectContent;
+            contentByte.BeginText();
+            contentByte.SetFontAndSize(baseFont, 6);
+            var extractionStrategy = new PDFTextExtractionStrategy();
+            var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
+            var LisFoundStringInfo = extractionStrategy.GetTargetStringsInfo(targetString);
+            if (LisFoundStringInfo.Count > numEntryTargetString - 1)
+            {
+                iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
+                Point PointToInsert = GetPointToInsert(locationToInsert, offsetInsertion, rect);
+                contentByte.ShowTextAligned(
+                    PdfContentByte.ALIGN_LEFT,
+                    stringToInsert,
+                    PointToInsert.X,
+                    PointToInsert.Y, 
+                    rotation: 0);
+                
+            }
+            else
+            {
+                MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения: \"{stringToInsert}\"");
+            }
+            contentByte.EndText();
+            contentByte.AddTemplate(importedPage, 0, 0);
+        }
+        public static void InsertImageToPDF(iTextSharp.text.Image img, string targetString, int numEntryTargetString,
+            PdfReader reader, PdfWriter writer, int pageNum, LocationToInsert locationToInsert, Point offsetInsertion)
+        {
+            var extractionStrategy = new PDFTextExtractionStrategy();
+            var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
+            var importedPage = writer.GetImportedPage(reader, pageNum);
+            var LisFoundStringInfo = extractionStrategy.GetTargetStringsInfo(targetString);
+            var contentByte = writer.DirectContent;
+            contentByte.BeginText();
+            if (LisFoundStringInfo.Count > numEntryTargetString - 1)
+            {
+                iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
+                Point PointToInsert = GetPointToInsert(locationToInsert, offsetInsertion, rect);
+                img.SetAbsolutePosition(PointToInsert.X, PointToInsert.Y);
+                contentByte.AddImage(img);
+            }
+            else
+            {
+                MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения картинки");
+            }
+            contentByte.EndText();
+            contentByte.AddTemplate(importedPage, 0, 0);
+        }
+        private static Point GetPointToInsert(LocationToInsert locationToInsert, Point offsetInsertion, iTextSharp.text.Rectangle rect)
+        {
+            if (locationToInsert == LocationToInsert.LT)
+            {
+                return new Point((int)(rect.Left) + offsetInsertion.X, (int)(rect.Top) + offsetInsertion.Y);
+            }
+            if (locationToInsert == LocationToInsert.LB)
+            {
+                return new Point((int)(rect.Left) + offsetInsertion.X, (int)(rect.Bottom) + offsetInsertion.Y);
+            }
+            if (locationToInsert == LocationToInsert.RB)
+            {
+                return new Point((int)(rect.Right) + offsetInsertion.X, (int)(rect.Bottom) + offsetInsertion.Y);
+            }
+            if (locationToInsert == LocationToInsert.RT)
+            {
+                return new Point((int)(rect.Right) + offsetInsertion.X, (int)(rect.Top) + offsetInsertion.Y);
+            }
+            return new Point();
         }
     }
 }
