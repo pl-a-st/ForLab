@@ -38,7 +38,7 @@ namespace ForLab
             // 
             // butModifyDoc
             // 
-            this.butModifyDoc.Location = new System.Drawing.Point(251, 90);
+            this.butModifyDoc.Location = new System.Drawing.Point(272, 91);
             this.butModifyDoc.Name = "butModifyDoc";
             this.butModifyDoc.Size = new System.Drawing.Size(128, 45);
             this.butModifyDoc.TabIndex = 0;
