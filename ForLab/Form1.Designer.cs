@@ -31,16 +31,16 @@ namespace ForLab
         {
             this.butModifyDoc = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.cboTypeWork = new System.Windows.Forms.ComboBox();
             this.chkIsElectronic = new System.Windows.Forms.CheckBox();
+            this.chkIsMulty = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // butModifyDoc
             // 
-            this.butModifyDoc.Location = new System.Drawing.Point(272, 91);
+            this.butModifyDoc.Location = new System.Drawing.Point(269, 46);
             this.butModifyDoc.Name = "butModifyDoc";
-            this.butModifyDoc.Size = new System.Drawing.Size(128, 45);
+            this.butModifyDoc.Size = new System.Drawing.Size(128, 44);
             this.butModifyDoc.TabIndex = 0;
             this.butModifyDoc.Text = "Выбрать файл";
             this.butModifyDoc.UseVisualStyleBackColor = true;
@@ -55,15 +55,6 @@ namespace ForLab
             this.label1.TabIndex = 1;
             this.label1.Text = "Программа дополняет свидетельство уникальным номером и главным мтерологом";
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 38);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(443, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Программа свыдаст ошибку если файл делается второй раз и он остался открытым!";
-            // 
             // cboTypeWork
             // 
             this.cboTypeWork.Enabled = false;
@@ -71,7 +62,7 @@ namespace ForLab
             this.cboTypeWork.Items.AddRange(new object[] {
             "Первичная",
             "Периодическая"});
-            this.cboTypeWork.Location = new System.Drawing.Point(15, 114);
+            this.cboTypeWork.Location = new System.Drawing.Point(12, 69);
             this.cboTypeWork.Name = "cboTypeWork";
             this.cboTypeWork.Size = new System.Drawing.Size(166, 21);
             this.cboTypeWork.TabIndex = 2;
@@ -80,7 +71,7 @@ namespace ForLab
             // chkIsElectronic
             // 
             this.chkIsElectronic.AutoSize = true;
-            this.chkIsElectronic.Location = new System.Drawing.Point(15, 91);
+            this.chkIsElectronic.Location = new System.Drawing.Point(12, 46);
             this.chkIsElectronic.Name = "chkIsElectronic";
             this.chkIsElectronic.Size = new System.Drawing.Size(171, 17);
             this.chkIsElectronic.TabIndex = 3;
@@ -88,14 +79,24 @@ namespace ForLab
             this.chkIsElectronic.UseVisualStyleBackColor = true;
             this.chkIsElectronic.CheckedChanged += new System.EventHandler(this.chkIsElectronic_CheckedChanged);
             // 
+            // chkIsMulty
+            // 
+            this.chkIsMulty.AutoSize = true;
+            this.chkIsMulty.Location = new System.Drawing.Point(12, 99);
+            this.chkIsMulty.Name = "chkIsMulty";
+            this.chkIsMulty.Size = new System.Drawing.Size(191, 30);
+            this.chkIsMulty.TabIndex = 4;
+            this.chkIsMulty.Text = "Электронное свидетельство \r\nдля всех свидетельств в папке. ";
+            this.chkIsMulty.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(489, 161);
+            this.ClientSize = new System.Drawing.Size(489, 128);
+            this.Controls.Add(this.chkIsMulty);
             this.Controls.Add(this.chkIsElectronic);
             this.Controls.Add(this.cboTypeWork);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.butModifyDoc);
             this.Name = "Form1";
@@ -109,9 +110,9 @@ namespace ForLab
 
         private System.Windows.Forms.Button butModifyDoc;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cboTypeWork;
         private System.Windows.Forms.CheckBox chkIsElectronic;
+        private System.Windows.Forms.CheckBox chkIsMulty;
     }
 }
 

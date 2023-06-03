@@ -15,7 +15,7 @@ namespace ForLab
     /// <summary>
     /// расоположение относительно вершин прямоугольника
     /// </summary>
-    public enum LocationToInsert
+    public enum TypeLocationToInsert
     {
         /// <summary>
         /// лево низ
@@ -33,6 +33,11 @@ namespace ForLab
         /// право низ
         /// </summary>
         RB
+    }
+    public enum OnFail
+    {
+        Message,
+        Log
     }
     public class RectAndText
     {
@@ -118,74 +123,120 @@ namespace ForLab
             }
             return targetRectAndText;
         }
-        public static void InsetStringToPDF(string stringToInsert, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, LocationToInsert locationToInsert, Point offsetInsertion)
+        public static void InsetStringToPDF(string fileName, string stringToInsert, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert TypelocationToInsert, Point offsetInsertion, OnFail onFail)
         {
             string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "TAHOMA.TTF");
             var baseFont = BaseFont.CreateFont(ttf, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             var importedPage = writer.GetImportedPage(reader, pageNum);
             var contentByte = writer.DirectContent;
             contentByte.BeginText();
-            contentByte.SetFontAndSize(baseFont, 6);
+            contentByte.SetFontAndSize(baseFont, 8);
             var extractionStrategy = new PDFTextExtractionStrategy();
             var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
             var LisFoundStringInfo = extractionStrategy.GetTargetStringsInfo(targetString);
-            if (LisFoundStringInfo.Count > numEntryTargetString - 1)
+            if (LisFoundStringInfo.Count < numEntryTargetString)
             {
-                iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
-                Point PointToInsert = GetPointToInsert(locationToInsert, offsetInsertion, rect);
-                contentByte.ShowTextAligned(
-                    PdfContentByte.ALIGN_LEFT,
-                    stringToInsert,
-                    PointToInsert.X,
-                    PointToInsert.Y, 
-                    rotation: 0);
-                
+                if (onFail == OnFail.Message)
+                {
+                    MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения: \"{stringToInsert}\"");
+                    
+                }
+                if (onFail == OnFail.Log)
+                {
+                    TryWtiteLog(fileName, stringToInsert, targetString);
+                }
+                contentByte.EndText();
+                contentByte.AddTemplate(importedPage, 0, 0);
+                return;
             }
-            else
-            {
-                MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения: \"{stringToInsert}\"");
-            }
+
+            iTextSharp.text.Rectangle rectFoundString = LisFoundStringInfo[numEntryTargetString - 1].Rect;
+            Point PointToInsert = GetPointToInsert(TypelocationToInsert, offsetInsertion, rectFoundString);
+            contentByte.ShowTextAligned(
+                PdfContentByte.ALIGN_LEFT,
+                stringToInsert,
+                PointToInsert.X,
+                PointToInsert.Y,
+                rotation: 0);
             contentByte.EndText();
             contentByte.AddTemplate(importedPage, 0, 0);
         }
-        public static void InsertImageToPDF(iTextSharp.text.Image img, string targetString, int numEntryTargetString,
-            PdfReader reader, PdfWriter writer, int pageNum, LocationToInsert locationToInsert, Point offsetInsertion)
+        /// <summary>
+        /// Пытается записать лог в туже папку куда пишет файл.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="stringToInsert"></param>
+        /// <param name="targetString"></param>
+        private static void TryWtiteLog(string fileName, string stringToInsert, string targetString)
+        {
+            FileInfo fileInfo = new FileInfo(fileName);
+            string pathToLog = fileInfo.DirectoryName;
+            string LogFile = fileInfo.DirectoryName + @"\log " + DateTime.Now.Date.ToShortDateString() + ".txt";
+            StreamWriter stream = null;
+            try
+            {
+                stream = new StreamWriter(LogFile, true);
+                stream.WriteLine($"Для файла{fileName}: Не найдены ключевые слова \"{targetString}\": для размещения: \"{stringToInsert}\"");
+            }
+            catch { }
+            finally
+            {
+                if (stream != null)
+                {
+                    stream.Close();
+                }
+            }
+        }
+
+        public static void InsertImageToPDF(string fileName, iTextSharp.text.Image img, string targetString, int numEntryTargetString,
+            PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert locationToInsert, Point offsetInsertion, OnFail onFail)
         {
             var extractionStrategy = new PDFTextExtractionStrategy();
             var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
+            
             var importedPage = writer.GetImportedPage(reader, pageNum);
             var LisFoundStringInfo = extractionStrategy.GetTargetStringsInfo(targetString);
             var contentByte = writer.DirectContent;
             contentByte.BeginText();
-            if (LisFoundStringInfo.Count > numEntryTargetString - 1)
+            if (LisFoundStringInfo.Count < numEntryTargetString)
             {
-                iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
-                Point PointToInsert = GetPointToInsert(locationToInsert, offsetInsertion, rect);
-                img.SetAbsolutePosition(PointToInsert.X, PointToInsert.Y);
-                contentByte.AddImage(img);
+                if (onFail == OnFail.Message)
+                {
+                    MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения картинки");
+
+                }
+                if (onFail == OnFail.Log)
+                {
+                    TryWtiteLog(fileName, "картинки", targetString);
+                }
+                contentByte.EndText();
+                contentByte.AddTemplate(importedPage, 0, 0);
+                return;
             }
-            else
-            {
-                MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения картинки");
-            }
+            iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
+            Point PointToInsert = GetPointToInsert(locationToInsert, offsetInsertion, rect);
+            img.SetAbsolutePosition(PointToInsert.X, PointToInsert.Y);
+            contentByte.AddImage(img);
             contentByte.EndText();
             contentByte.AddTemplate(importedPage, 0, 0);
+           
+            
         }
-        private static Point GetPointToInsert(LocationToInsert locationToInsert, Point offsetInsertion, iTextSharp.text.Rectangle rect)
+        private static Point GetPointToInsert(TypeLocationToInsert locationToInsert, Point offsetInsertion, iTextSharp.text.Rectangle rect)
         {
-            if (locationToInsert == LocationToInsert.LT)
+            if (locationToInsert == TypeLocationToInsert.LT)
             {
                 return new Point((int)(rect.Left) + offsetInsertion.X, (int)(rect.Top) + offsetInsertion.Y);
             }
-            if (locationToInsert == LocationToInsert.LB)
+            if (locationToInsert == TypeLocationToInsert.LB)
             {
                 return new Point((int)(rect.Left) + offsetInsertion.X, (int)(rect.Bottom) + offsetInsertion.Y);
             }
-            if (locationToInsert == LocationToInsert.RB)
+            if (locationToInsert == TypeLocationToInsert.RB)
             {
                 return new Point((int)(rect.Right) + offsetInsertion.X, (int)(rect.Bottom) + offsetInsertion.Y);
             }
-            if (locationToInsert == LocationToInsert.RT)
+            if (locationToInsert == TypeLocationToInsert.RT)
             {
                 return new Point((int)(rect.Right) + offsetInsertion.X, (int)(rect.Top) + offsetInsertion.Y);
             }

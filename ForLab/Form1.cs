@@ -12,27 +12,66 @@ using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace ForLab
 {
+    public enum Result
+    {
+        Sucsess,
+        Fail,
+        Error
+    }
+
     public partial class Form1 : Form
     {
         public Form1()
         {
             InitializeComponent();
-        }
 
+        }
         private async void butModifyDoc_Click(object sender, EventArgs e)
         {
             ProgressBar progressBar = new ProgressBar();
             Label label = new Label();
             InsertControls(progressBar, label);
+            if (chkIsMulty.Checked)
+            {
+                CommonOpenFileDialog FolderDialog = new CommonOpenFileDialog();
+                FolderDialog.IsFolderPicker = true;
+                if (FolderDialog.ShowDialog() != CommonFileDialogResult.Ok)
+                {
+                    return;
+                }
+                FileSystemInfo[] files = new DirectoryInfo(FolderDialog.FileName).GetFileSystemInfos();
+                foreach (FileSystemInfo info in files)
+                {
+                    if (info.Extension.ToLower() != ".pdf")
+                    {
+                        continue;
+                    }
+                    string inputFile = info.FullName;
+                    string outputFile = info.FullName.Replace(".pdf", " ВАСТ.pdf");
+                    if (IsFileLocked(new FileInfo(outputFile)))
+                    {
+                        continue;
+                    }
+                    await InsertDataInFile(inputFile, outputFile, OnFail.Log);
+                }
+            }
+            if (!chkIsMulty.Checked)
+            {
+                await GetFilePathAndInsertData(OnFail.Message);
+            }
+            label.Dispose();
+            progressBar.Dispose();
+        }
+        private async Task GetFilePathAndInsertData(OnFail onFail)
+        {
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "PDF files(*.pdf)|*.pdf";
             if (fileDialog.ShowDialog() != DialogResult.OK)
             {
-                progressBar.Dispose();
-                label.Dispose();
                 return;
             }
             string inputFile = fileDialog.FileName;
@@ -40,10 +79,14 @@ namespace ForLab
             if (IsFileLocked(new FileInfo(outputFile)))
             {
                 MessageBox.Show("Данное свидетельство уже модифицировалось и итоговый файл открыт, для перезаписи необходимо закрыть файл и выбрать его снова");
-                progressBar.Dispose();
-                label.Dispose();
                 return;
             }
+            await InsertDataInFile(inputFile, outputFile, onFail);
+            await Task.Factory.StartNew(() => System.Diagnostics.Process.Start(outputFile));
+            await Task.Delay(2500);
+        }
+        private async Task InsertDataInFile(string inputFile, string outputFile, OnFail onFail)
+        {
             using (var reader = new PdfReader(inputFile))
             {
                 using (var fileStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
@@ -54,27 +97,22 @@ namespace ForLab
                     for (var i = 1; i <= reader.NumberOfPages; i++)
                     {
                         document.NewPage();
-                        InsertRegNum(reader, writer, i);
-                        InsertPosition(reader, writer, i);
-                        InsertNameHeadMetrology(reader, writer, i);
-                        InsertWorkSymbol(reader, writer);
+                        InsertRegNum(inputFile, reader, writer, i, onFail);
+                        InsertPosition(inputFile, reader, writer, i, onFail);
+                        InsertNameHeadMetrology(inputFile, reader, writer, i, onFail);
+                        InsertWorkSymbol(inputFile, reader, writer, onFail);
                     }
                     document.Close();
                     writer.Close();
                 }
             }
-            await Task.Factory.StartNew(()=>System.Diagnostics.Process.Start(outputFile));
-
-            await Task.Delay(2000);
-            label.Dispose();
-            progressBar.Dispose();
+           
         }
 
         private void InsertControls(ProgressBar progressBar, Label label)
         {
             progressBar.Width = butModifyDoc.Width * 2;
             progressBar.Height = butModifyDoc.Height * 2;
-
             progressBar.Location = new Point(
                 x: butModifyDoc.Location.X + butModifyDoc.Width / 2 - progressBar.Width / 2,
                 y: butModifyDoc.Location.Y + butModifyDoc.Height / 2 - progressBar.Height / 2);
@@ -82,7 +120,8 @@ namespace ForLab
             progressBar.MarqueeAnimationSpeed = 30;
             label.AutoSize = true;
             label.Text = "Идет модификация свидетельства!";
-
+            label.BackColor = Color.Transparent;
+            label.Parent = progressBar;
             label.Location = new Point(
                 x: butModifyDoc.Location.X + butModifyDoc.Width / 2 - label.PreferredWidth / 2,
                 y: butModifyDoc.Location.Y + butModifyDoc.Height / 2 - label.Height / 2);
@@ -92,72 +131,82 @@ namespace ForLab
             label.BringToFront();
         }
 
-        private void InsertWorkSymbol(PdfReader reader, PdfWriter writer)
+        private void InsertWorkSymbol(string fileName, PdfReader reader, PdfWriter writer, OnFail onFail)
         {
-            if (!chkIsElectronic.Checked)
+            if (!chkIsMulty.Checked && !chkIsElectronic.Checked)
             {
                 return;
             }
             iTextSharp.text.Image imgfoot = iTextSharp.text.Image.GetInstance(Properties.Resources.Первичная_поверка, System.Drawing.Imaging.ImageFormat.Png);
-            if (cboTypeWork.SelectedItem.ToString().ToLower().Contains("первичная"))
+            imgfoot.ScaleAbsolute(60, 35);
+            if (!chkIsMulty.Checked && chkIsElectronic.Checked)
             {
-                imgfoot.ScaleAbsolute(60, 35);
-            }
-            if (cboTypeWork.SelectedItem.ToString().ToLower().Contains("периодическая"))
-            {
-                imgfoot.ScaleAbsolute(32, 35);
+                if (cboTypeWork.SelectedItem.ToString().ToLower().Contains("первичная"))
+                {
+                    imgfoot.ScaleAbsolute(60, 35);
+                }
+                if (cboTypeWork.SelectedItem.ToString().ToLower().Contains("периодическая"))
+                {
+                    imgfoot.ScaleAbsolute(32, 35);
+                }
             }
             PDFTextExtractionStrategy.InsertImageToPDF(
+                fileName,
                 imgfoot,
                 "Знак поверки:",
                 numEntryTargetString: 1,
                 reader,
                 writer,
                 pageNum: 1,
-                LocationToInsert.RB,
-                offsetInsertion: new Point(2, -5)
-                );
+                TypeLocationToInsert.RB,
+                offsetInsertion: new Point(2, -(int)imgfoot.ScaledHeight / 2 + 5),
+                onFail);
         }
 
-        private static void InsertNameHeadMetrology(PdfReader reader, PdfWriter writer, int i)
+        private static void InsertNameHeadMetrology(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
+                fileName,
                 stringToInsert: Constatnts.NameHeadMetrologist,
                 targetString: Constatnts.TargetStrForNameHead,
                 numEntryTargetString: 2,
                 reader,
                 writer,
-                pageNum: i,
-                LocationToInsert.LT,
-                offsetInsertion: new Point(x: 0, y: 10));
+                pageNum: pageNum,
+                TypeLocationToInsert.LT,
+                offsetInsertion: new Point(x: 0, y: 10),
+                onFail);
         }
 
-        private static void InsertPosition(PdfReader reader, PdfWriter writer, int i)
+        private static void InsertPosition(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
+                fileName,
                 stringToInsert: Constatnts.PositionHeadMetrologist,
                 targetString: Constatnts.TargetStrForPosHead,
                 numEntryTargetString: 1,
                 reader,
                 writer,
-                pageNum: i,
-                LocationToInsert.LT,
-                offsetInsertion: new Point(x: 0, y: 10));
+                pageNum: pageNum,
+                TypeLocationToInsert.LT,
+                offsetInsertion: new Point(x: 0, y: 10),
+                onFail);
         }
 
-        private static void InsertRegNum(PdfReader reader, PdfWriter writer, int i)
+        private static void InsertRegNum(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
+                fileName,
                 stringToInsert: Constatnts.RegNumber,
                 targetString: Constatnts.TargetStrForRegNumber,
                 numEntryTargetString: 1,
                 reader,
                 writer,
-                pageNum: i,
-                LocationToInsert.RB,
-                offsetInsertion: new Point(x: 0, y: 2));
+                pageNum: pageNum,
+                TypeLocationToInsert.RB,
+                offsetInsertion: new Point(x: 0, y: 2),
+                onFail);
         }
-
         private void chkIsElectronic_CheckedChanged(object sender, EventArgs e)
         {
             if (chkIsElectronic.Checked)
@@ -176,7 +225,7 @@ namespace ForLab
             FileStream stream = null;
             try
             {
-                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                stream = file.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
             }
             catch (IOException)
             {
