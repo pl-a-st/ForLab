@@ -16,12 +16,12 @@ namespace ForLab
     }
     static public class DAO
     {
-        public static MethodResultStatus binWriteObjectToFile<Type>(Type serObject, string fileName)
+        public static MethodResultStatus binWriteObjectToFile<Type>(Type serObject, string PathFile)
         {
             try
             {
                 BinaryFormatter bf = new BinaryFormatter();
-                using (FileStream stream = new FileStream(fileName, FileMode.Create))
+                using (FileStream stream = new FileStream(PathFile, FileMode.Create))
                 {
                     bf.Serialize(stream, serObject);
                 }

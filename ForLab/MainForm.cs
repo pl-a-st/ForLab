@@ -23,9 +23,9 @@ namespace ForLab
         Error
     }
 
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 
@@ -106,7 +106,7 @@ namespace ForLab
                     writer.Close();
                 }
             }
-           
+
         }
 
         private void InsertControls(ProgressBar progressBar, Label label)
@@ -137,23 +137,13 @@ namespace ForLab
             {
                 return;
             }
-            iTextSharp.text.Image imgfoot = iTextSharp.text.Image.GetInstance(Properties.Resources.Первичная_поверка, System.Drawing.Imaging.ImageFormat.Png);
+            iTextSharp.text.Image imgfoot = iTextSharp.text.Image.GetInstance(Properties.Resources.прямоугольник_для_штампа, System.Drawing.Imaging.ImageFormat.Png);
             imgfoot.ScaleAbsolute(60, 35);
-            if (!chkIsMulty.Checked && chkIsElectronic.Checked)
-            {
-                if (cboTypeWork.SelectedItem.ToString().ToLower().Contains("первичная"))
-                {
-                    imgfoot.ScaleAbsolute(60, 35);
-                }
-                if (cboTypeWork.SelectedItem.ToString().ToLower().Contains("периодическая"))
-                {
-                    imgfoot.ScaleAbsolute(32, 35);
-                }
-            }
+
             PDFTextExtractionStrategy.InsertImageToPDF(
                 fileName,
                 imgfoot,
-                "Знак поверки:",
+                targetString: PmData.TargetStrForSymble,
                 numEntryTargetString: 1,
                 reader,
                 writer,
@@ -161,14 +151,53 @@ namespace ForLab
                 TypeLocationToInsert.RB,
                 offsetInsertion: new Point(2, -(int)imgfoot.ScaledHeight / 2 + 5),
                 onFail);
+            PDFTextExtractionStrategy.InsetStringToPDF(
+                fileName,
+                stringToInsert: cboDateSymbol.Text[cboDateSymbol.Text.Length - 2].ToString(),
+                fontSize: 30,
+                targetString: PmData.TargetStrForSymble,
+                numEntryTargetString: 1,
+                reader,
+                writer,
+                pageNum: 1,
+                TypeLocationToInsert.RB,
+                offsetInsertion: new Point(5, -5),
+                onFail
+                );
+            PDFTextExtractionStrategy.InsetStringToPDF(
+                fileName,
+                stringToInsert: PmData.Code,
+                fontSize: 15,
+                targetString: PmData.TargetStrForSymble,
+                numEntryTargetString: 1,
+                reader,
+                writer,
+                pageNum: 1,
+                TypeLocationToInsert.RB,
+                offsetInsertion: new Point(20, 0),
+                onFail
+                );
+            PDFTextExtractionStrategy.InsetStringToPDF(
+                fileName,
+                stringToInsert: cboDateSymbol.Text[cboDateSymbol.Text.Length - 1].ToString(),
+                fontSize: 30,
+                targetString: PmData.TargetStrForSymble,
+                numEntryTargetString: 1,
+                reader,
+                writer,
+                pageNum: 1,
+                TypeLocationToInsert.RB,
+                offsetInsertion: new Point(43, -5),
+                onFail
+                );
         }
 
-        private static void InsertNameHeadMetrology(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
+        private void InsertNameHeadMetrology(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: Constatnts.NameHeadMetrologist,
-                targetString: Constatnts.TargetStrForNameHead,
+                stringToInsert: cboNameHead.Text,
+                targetString: PmData.TargetStrForNameHead,
                 numEntryTargetString: 2,
                 reader,
                 writer,
@@ -178,12 +207,12 @@ namespace ForLab
                 onFail);
         }
 
-        private static void InsertPosition(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
+        private void InsertPosition(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: Constatnts.PositionHeadMetrologist,
-                targetString: Constatnts.TargetStrForPosHead,
+                stringToInsert: cboHeadPosition.Text,
+                targetString: PmData.TargetStrForPosHead,
                 numEntryTargetString: 1,
                 reader,
                 writer,
@@ -211,13 +240,13 @@ namespace ForLab
         {
             if (chkIsElectronic.Checked)
             {
-                cboTypeWork.Enabled = true;
-                cboTypeWork.Text = cboTypeWork.Items[0].ToString();
+                cboDateSymbol.Enabled = true;
+                cboDateSymbol.Text = cboDateSymbol.Items[0].ToString();
             }
             if (!chkIsElectronic.Checked)
             {
-                cboTypeWork.Enabled = false;
-                cboTypeWork.Text = "Вид поверки";
+                cboDateSymbol.Enabled = false;
+                cboDateSymbol.Text = "Год поверки";
             }
         }
         protected virtual bool IsFileLocked(FileInfo file)
@@ -240,6 +269,140 @@ namespace ForLab
 
             }
             return false;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            LoadAllComboboxes();
+        }
+
+        private void LoadAllComboboxes()
+        {
+            cboNameHead.Items.Clear();
+            cboNameHead.Items.AddRange(PmData.ListHeadNames.ToArray());
+            if (cboNameHead.Items.Count > 0)
+            {
+                cboNameHead.SelectedIndex = 0;
+            }
+            cboHeadPosition.Items.Clear();
+            cboHeadPosition.Items.AddRange(PmData.ListPositionHead.ToArray());
+            if (cboHeadPosition.Items.Count > 0)
+            {
+                cboHeadPosition.SelectedIndex = 0;
+            }
+            cboDateSymbol.Items.Clear();
+            cboDateSymbol.Items.AddRange(PmData.ListDateSimbols.ToArray());
+            if (cboDateSymbol.Items.Count > 0)
+            {
+                cboDateSymbol.SelectedIndex = 0;
+            }
+        }
+
+        private void butAddHead_Click(object sender, EventArgs e)
+        {
+            InputForm inputForm = GetInput("Добавление фамилии сотрудника", "Фамилия И.О.");
+            AddStrigToListAndFile(inputForm, PmData.ListHeadNames, PmData.PathListHeadNames);
+            if (inputForm.DialogResult != DialogResult.OK)
+            {
+                return;
+            }
+            LoadAllComboboxes();
+            if (cboNameHead.Items.Count > 0)
+            {
+                cboNameHead.SelectedItem = cboNameHead.Items[cboNameHead.Items.Count - 1];
+            }
+        }
+        private void butDelHead_Click(object sender, EventArgs e)
+        {
+            PmData.ListHeadNames.RemoveAt(cboNameHead.SelectedIndex);
+            DAO.binWriteObjectToFile(PmData.ListHeadNames, PmData.PathListHeadNames);
+            LoadAllComboboxes();
+        }
+
+        private void chkIsMulty_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkIsMulty.Checked)
+            {
+                butModifyDoc.Text = "Выбрать папку";
+            }
+            if (!chkIsMulty.Checked)
+            {
+                butModifyDoc.Text = "Выбрать файл";
+            }
+        }
+
+        private void butAddPosition_Click(object sender, EventArgs e)
+        {
+            InputForm inputForm = GetInput("Добавление должности сотрудника", "Должность");
+            AddStrigToListAndFile(inputForm, PmData.ListPositionHead, PmData.PathListHeadPositions);
+            if (inputForm.DialogResult != DialogResult.OK)
+            {
+                return;
+            }
+            LoadAllComboboxes();
+            if (cboHeadPosition.Items.Count > 0)
+            {
+                cboHeadPosition.SelectedItem = cboHeadPosition.Items[cboHeadPosition.Items.Count - 1];
+            }
+        }
+        private InputForm GetInput(string formText, string lableText)
+        {
+            InputForm inputForm = new InputForm();
+            inputForm.SetLable(lableText);
+            inputForm.SetText(formText);
+            return inputForm;
+        }
+        private static void AddStrigToListAndFile(InputForm inputForm,List<string> listStr, string pathFile)
+        {
+            inputForm.ShowDialog();
+            if (inputForm.DialogResult != DialogResult.OK)
+            {
+                return;
+            }
+            listStr.Add(inputForm.GetTextBoxText());
+
+            if (DAO.binWriteObjectToFile(listStr, pathFile) != MethodResultStatus.Sucsess)
+            {
+                inputForm.DialogResult = DialogResult.None;
+                AddStrigToListAndFile(inputForm, listStr, pathFile);
+            }
+        }
+
+        private void butDelPosition_Click(object sender, EventArgs e)
+        {
+            if (cboHeadPosition.SelectedIndex == -1)
+            {
+                return;
+            }
+            PmData.ListPositionHead.RemoveAt(cboHeadPosition.SelectedIndex);
+            DAO.binWriteObjectToFile(PmData.ListPositionHead, PmData.PathListHeadPositions);
+            LoadAllComboboxes();
+        }
+
+        private void butAddDate_Click(object sender, EventArgs e)
+        {
+            InputForm inputForm = GetInput("Добавление даты", "Дата");
+            AddStrigToListAndFile(inputForm, PmData.ListDateSimbols, PmData.PathListDateSymbol);
+            if (inputForm.DialogResult != DialogResult.OK)
+            {
+                return;
+            }
+            LoadAllComboboxes();
+            if (cboDateSymbol.Items.Count > 0)
+            {
+                cboDateSymbol.SelectedItem = cboDateSymbol.Items[cboDateSymbol.Items.Count - 1];
+            }
+        }
+
+        private void butDelDate_Click(object sender, EventArgs e)
+        {
+            if (cboDateSymbol.SelectedIndex == -1)
+            {
+                return;
+            }
+            PmData.ListDateSimbols.RemoveAt(cboDateSymbol.SelectedIndex);
+            DAO.binWriteObjectToFile(PmData.ListDateSimbols, PmData.PathListDateSymbol);
+            LoadAllComboboxes();
         }
     }
 

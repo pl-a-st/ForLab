@@ -130,7 +130,7 @@ namespace ForLab
             var importedPage = writer.GetImportedPage(reader, pageNum);
             var contentByte = writer.DirectContent;
             contentByte.BeginText();
-            contentByte.SetFontAndSize(baseFont, 8);
+            contentByte.SetFontAndSize(baseFont, 7);
             var extractionStrategy = new PDFTextExtractionStrategy();
             var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
             var LisFoundStringInfo = extractionStrategy.GetTargetStringsInfo(targetString);
@@ -140,6 +140,44 @@ namespace ForLab
                 {
                     MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения: \"{stringToInsert}\"");
                     
+                }
+                if (onFail == OnFail.Log)
+                {
+                    TryWtiteLog(fileName, stringToInsert, targetString);
+                }
+                contentByte.EndText();
+                contentByte.AddTemplate(importedPage, 0, 0);
+                return;
+            }
+
+            iTextSharp.text.Rectangle rectFoundString = LisFoundStringInfo[numEntryTargetString - 1].Rect;
+            Point PointToInsert = GetPointToInsert(TypelocationToInsert, offsetInsertion, rectFoundString);
+            contentByte.ShowTextAligned(
+                PdfContentByte.ALIGN_LEFT,
+                stringToInsert,
+                PointToInsert.X,
+                PointToInsert.Y,
+                rotation: 0);
+            contentByte.EndText();
+            contentByte.AddTemplate(importedPage, 0, 0);
+        }
+        public static void InsetStringToPDF(string fileName, string stringToInsert, float fontSize, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert TypelocationToInsert, Point offsetInsertion, OnFail onFail)
+        {
+            string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "TAHOMA.TTF");
+            var baseFont = BaseFont.CreateFont(ttf, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+            var importedPage = writer.GetImportedPage(reader, pageNum);
+            var contentByte = writer.DirectContent;
+            contentByte.BeginText();
+            contentByte.SetFontAndSize(baseFont, fontSize);
+            var extractionStrategy = new PDFTextExtractionStrategy();
+            var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
+            var LisFoundStringInfo = extractionStrategy.GetTargetStringsInfo(targetString);
+            if (LisFoundStringInfo.Count < numEntryTargetString)
+            {
+                if (onFail == OnFail.Message)
+                {
+                    MessageBox.Show($"Не найдены ключевые слова \"{targetString}\": для размещения: \"{stringToInsert}\"");
+
                 }
                 if (onFail == OnFail.Log)
                 {
