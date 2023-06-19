@@ -45,11 +45,21 @@ namespace ForLab
             this.butDelPosition = new System.Windows.Forms.Button();
             this.butAddDate = new System.Windows.Forms.Button();
             this.butDelDate = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
+            this.lblCertificateLog = new System.Windows.Forms.Label();
+            this.butSetcertificateLog = new System.Windows.Forms.Button();
+            this.butInsertInCertificateLog = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.txtNumCertificate = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // butModifyDoc
             // 
-            this.butModifyDoc.Location = new System.Drawing.Point(156, 265);
+            this.butModifyDoc.Location = new System.Drawing.Point(150, 272);
             this.butModifyDoc.Name = "butModifyDoc";
             this.butModifyDoc.Size = new System.Drawing.Size(128, 44);
             this.butModifyDoc.TabIndex = 0;
@@ -60,7 +70,7 @@ namespace ForLab
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(6, 16);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(426, 65);
             this.label1.TabIndex = 1;
@@ -70,7 +80,7 @@ namespace ForLab
             // 
             this.cboDateSymbol.Enabled = false;
             this.cboDateSymbol.FormattingEnabled = true;
-            this.cboDateSymbol.Location = new System.Drawing.Point(12, 220);
+            this.cboDateSymbol.Location = new System.Drawing.Point(6, 227);
             this.cboDateSymbol.Name = "cboDateSymbol";
             this.cboDateSymbol.Size = new System.Drawing.Size(166, 21);
             this.cboDateSymbol.TabIndex = 2;
@@ -79,7 +89,7 @@ namespace ForLab
             // chkIsElectronic
             // 
             this.chkIsElectronic.AutoSize = true;
-            this.chkIsElectronic.Location = new System.Drawing.Point(12, 197);
+            this.chkIsElectronic.Location = new System.Drawing.Point(6, 204);
             this.chkIsElectronic.Name = "chkIsElectronic";
             this.chkIsElectronic.Size = new System.Drawing.Size(171, 17);
             this.chkIsElectronic.TabIndex = 3;
@@ -90,7 +100,7 @@ namespace ForLab
             // chkIsMulty
             // 
             this.chkIsMulty.AutoSize = true;
-            this.chkIsMulty.Location = new System.Drawing.Point(246, 190);
+            this.chkIsMulty.Location = new System.Drawing.Point(240, 197);
             this.chkIsMulty.Name = "chkIsMulty";
             this.chkIsMulty.Size = new System.Drawing.Size(191, 30);
             this.chkIsMulty.TabIndex = 4;
@@ -102,7 +112,7 @@ namespace ForLab
             // 
             this.cboNameHead.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboNameHead.FormattingEnabled = true;
-            this.cboNameHead.Location = new System.Drawing.Point(15, 106);
+            this.cboNameHead.Location = new System.Drawing.Point(9, 113);
             this.cboNameHead.Name = "cboNameHead";
             this.cboNameHead.Size = new System.Drawing.Size(358, 21);
             this.cboNameHead.TabIndex = 5;
@@ -110,7 +120,7 @@ namespace ForLab
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 90);
+            this.label2.Location = new System.Drawing.Point(6, 97);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(107, 13);
             this.label2.TabIndex = 6;
@@ -120,7 +130,7 @@ namespace ForLab
             // 
             this.cboHeadPosition.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboHeadPosition.FormattingEnabled = true;
-            this.cboHeadPosition.Location = new System.Drawing.Point(12, 152);
+            this.cboHeadPosition.Location = new System.Drawing.Point(6, 159);
             this.cboHeadPosition.Name = "cboHeadPosition";
             this.cboHeadPosition.Size = new System.Drawing.Size(361, 21);
             this.cboHeadPosition.TabIndex = 5;
@@ -128,7 +138,7 @@ namespace ForLab
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 136);
+            this.label3.Location = new System.Drawing.Point(3, 143);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(138, 13);
             this.label3.TabIndex = 6;
@@ -136,7 +146,7 @@ namespace ForLab
             // 
             // butAddHead
             // 
-            this.butAddHead.Location = new System.Drawing.Point(379, 106);
+            this.butAddHead.Location = new System.Drawing.Point(373, 113);
             this.butAddHead.Name = "butAddHead";
             this.butAddHead.Size = new System.Drawing.Size(24, 23);
             this.butAddHead.TabIndex = 7;
@@ -146,7 +156,7 @@ namespace ForLab
             // 
             // butDelHead
             // 
-            this.butDelHead.Location = new System.Drawing.Point(404, 106);
+            this.butDelHead.Location = new System.Drawing.Point(398, 113);
             this.butDelHead.Name = "butDelHead";
             this.butDelHead.Size = new System.Drawing.Size(24, 23);
             this.butDelHead.TabIndex = 7;
@@ -156,7 +166,7 @@ namespace ForLab
             // 
             // butAddPosition
             // 
-            this.butAddPosition.Location = new System.Drawing.Point(377, 152);
+            this.butAddPosition.Location = new System.Drawing.Point(371, 159);
             this.butAddPosition.Name = "butAddPosition";
             this.butAddPosition.Size = new System.Drawing.Size(24, 23);
             this.butAddPosition.TabIndex = 7;
@@ -166,7 +176,7 @@ namespace ForLab
             // 
             // butDelPosition
             // 
-            this.butDelPosition.Location = new System.Drawing.Point(402, 152);
+            this.butDelPosition.Location = new System.Drawing.Point(396, 159);
             this.butDelPosition.Name = "butDelPosition";
             this.butDelPosition.Size = new System.Drawing.Size(24, 23);
             this.butDelPosition.TabIndex = 7;
@@ -176,7 +186,7 @@ namespace ForLab
             // 
             // butAddDate
             // 
-            this.butAddDate.Location = new System.Drawing.Point(182, 220);
+            this.butAddDate.Location = new System.Drawing.Point(176, 227);
             this.butAddDate.Name = "butAddDate";
             this.butAddDate.Size = new System.Drawing.Size(24, 23);
             this.butAddDate.TabIndex = 7;
@@ -186,7 +196,7 @@ namespace ForLab
             // 
             // butDelDate
             // 
-            this.butDelDate.Location = new System.Drawing.Point(207, 220);
+            this.butDelDate.Location = new System.Drawing.Point(201, 227);
             this.butDelDate.Name = "butDelDate";
             this.butDelDate.Size = new System.Drawing.Size(24, 23);
             this.butDelDate.TabIndex = 7;
@@ -194,32 +204,113 @@ namespace ForLab
             this.butDelDate.UseVisualStyleBackColor = true;
             this.butDelDate.Click += new System.EventHandler(this.butDelDate_Click);
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(6, 16);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(218, 13);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "Регистрация эл. свидетельств в журнале";
+            // 
+            // lblCertificateLog
+            // 
+            this.lblCertificateLog.AutoSize = true;
+            this.lblCertificateLog.Location = new System.Drawing.Point(7, 43);
+            this.lblCertificateLog.Name = "lblCertificateLog";
+            this.lblCertificateLog.Size = new System.Drawing.Size(103, 13);
+            this.lblCertificateLog.TabIndex = 9;
+            this.lblCertificateLog.Text = "Журнал не выбран";
+            // 
+            // butSetcertificateLog
+            // 
+            this.butSetcertificateLog.Location = new System.Drawing.Point(9, 67);
+            this.butSetcertificateLog.Name = "butSetcertificateLog";
+            this.butSetcertificateLog.Size = new System.Drawing.Size(102, 32);
+            this.butSetcertificateLog.TabIndex = 10;
+            this.butSetcertificateLog.Text = "Выбрать журнал";
+            this.butSetcertificateLog.UseVisualStyleBackColor = true;
+            this.butSetcertificateLog.Click += new System.EventHandler(this.butSetcertificateLog_Click);
+            // 
+            // butInsertInCertificateLog
+            // 
+            this.butInsertInCertificateLog.Location = new System.Drawing.Point(299, 119);
+            this.butInsertInCertificateLog.Name = "butInsertInCertificateLog";
+            this.butInsertInCertificateLog.Size = new System.Drawing.Size(102, 32);
+            this.butInsertInCertificateLog.TabIndex = 10;
+            this.butInsertInCertificateLog.Text = "Внести в журнал";
+            this.butInsertInCertificateLog.UseVisualStyleBackColor = true;
+            this.butInsertInCertificateLog.Click += new System.EventHandler(this.butInsertInCertificateLog_Click);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.butModifyDoc);
+            this.groupBox1.Controls.Add(this.cboDateSymbol);
+            this.groupBox1.Controls.Add(this.chkIsElectronic);
+            this.groupBox1.Controls.Add(this.chkIsMulty);
+            this.groupBox1.Controls.Add(this.butDelDate);
+            this.groupBox1.Controls.Add(this.cboNameHead);
+            this.groupBox1.Controls.Add(this.butAddDate);
+            this.groupBox1.Controls.Add(this.cboHeadPosition);
+            this.groupBox1.Controls.Add(this.butDelPosition);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.butAddPosition);
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.butDelHead);
+            this.groupBox1.Controls.Add(this.butAddHead);
+            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(458, 323);
+            this.groupBox1.TabIndex = 11;
+            this.groupBox1.TabStop = false;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Controls.Add(this.txtNumCertificate);
+            this.groupBox2.Controls.Add(this.label4);
+            this.groupBox2.Controls.Add(this.lblCertificateLog);
+            this.groupBox2.Controls.Add(this.butInsertInCertificateLog);
+            this.groupBox2.Controls.Add(this.butSetcertificateLog);
+            this.groupBox2.Location = new System.Drawing.Point(491, 16);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(407, 319);
+            this.groupBox2.TabIndex = 12;
+            this.groupBox2.TabStop = false;
+            // 
+            // txtNumCertificate
+            // 
+            this.txtNumCertificate.Location = new System.Drawing.Point(6, 131);
+            this.txtNumCertificate.Name = "txtNumCertificate";
+            this.txtNumCertificate.Size = new System.Drawing.Size(284, 20);
+            this.txtNumCertificate.TabIndex = 11;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(7, 113);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(120, 13);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Номер свидетельства";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(463, 331);
-            this.Controls.Add(this.butDelDate);
-            this.Controls.Add(this.butAddDate);
-            this.Controls.Add(this.butDelPosition);
-            this.Controls.Add(this.butAddPosition);
-            this.Controls.Add(this.butDelHead);
-            this.Controls.Add(this.butAddHead);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.cboHeadPosition);
-            this.Controls.Add(this.cboNameHead);
-            this.Controls.Add(this.chkIsMulty);
-            this.Controls.Add(this.chkIsElectronic);
-            this.Controls.Add(this.cboDateSymbol);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.butModifyDoc);
+            this.ClientSize = new System.Drawing.Size(915, 349);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "Модификатор свидетельств";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -240,6 +331,14 @@ namespace ForLab
         private System.Windows.Forms.Button butDelPosition;
         private System.Windows.Forms.Button butAddDate;
         private System.Windows.Forms.Button butDelDate;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lblCertificateLog;
+        private System.Windows.Forms.Button butSetcertificateLog;
+        private System.Windows.Forms.Button butInsertInCertificateLog;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtNumCertificate;
     }
 }
 

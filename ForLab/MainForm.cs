@@ -13,6 +13,9 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Word = Microsoft.Office.Interop.Word;
+using System.Reflection;
+
 
 namespace ForLab
 {
@@ -41,6 +44,8 @@ namespace ForLab
                 FolderDialog.IsFolderPicker = true;
                 if (FolderDialog.ShowDialog() != CommonFileDialogResult.Ok)
                 {
+                    label.Dispose();
+                    progressBar.Dispose();
                     return;
                 }
                 FileSystemInfo[] files = new DirectoryInfo(FolderDialog.FileName).GetFileSystemInfos();
@@ -51,7 +56,7 @@ namespace ForLab
                         continue;
                     }
                     string inputFile = info.FullName;
-                    string outputFile = info.FullName.Replace(".pdf", " ВАСТ.pdf");
+                    string outputFile = info.FullName.Replace(".pdf", " мод.pdf");
                     if (IsFileLocked(new FileInfo(outputFile)))
                     {
                         continue;
@@ -75,7 +80,7 @@ namespace ForLab
                 return;
             }
             string inputFile = fileDialog.FileName;
-            string outputFile = fileDialog.FileName.Replace(".pdf", " ВАСТ.pdf");
+            string outputFile = fileDialog.FileName.Replace(".pdf", " мод.pdf");
             if (IsFileLocked(new FileInfo(outputFile)))
             {
                 MessageBox.Show("Данное свидетельство уже модифицировалось и итоговый файл открыт, для перезаписи необходимо закрыть файл и выбрать его снова");
@@ -101,7 +106,10 @@ namespace ForLab
                         InsertPosition(inputFile, reader, writer, i, onFail);
                         InsertNameHeadMetrology(inputFile, reader, writer, i, onFail);
                         InsertWorkSymbol(inputFile, reader, writer, onFail);
+                        InsertWhiteRectangel(inputFile, reader, writer, onFail);
+                        InsertMaskRST(inputFile, reader, writer);
                     }
+                    
                     document.Close();
                     writer.Close();
                 }
@@ -150,24 +158,26 @@ namespace ForLab
                 pageNum: 1,
                 TypeLocationToInsert.RB,
                 offsetInsertion: new Point(2, -(int)imgfoot.ScaledHeight / 2 + 5),
-                onFail);
+                onFail,
+                isFirstEntry: false);
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
                 stringToInsert: cboDateSymbol.Text[cboDateSymbol.Text.Length - 2].ToString(),
-                fontSize: 30,
+                fontSize: 25,
                 targetString: PmData.TargetStrForSymble,
                 numEntryTargetString: 1,
                 reader,
                 writer,
                 pageNum: 1,
                 TypeLocationToInsert.RB,
-                offsetInsertion: new Point(5, -5),
-                onFail
+                offsetInsertion: new Point(5, -4),
+                onFail,
+                isFirstEntry: false
                 );
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
                 stringToInsert: PmData.Code,
-                fontSize: 15,
+                fontSize: 12,
                 targetString: PmData.TargetStrForSymble,
                 numEntryTargetString: 1,
                 reader,
@@ -175,23 +185,58 @@ namespace ForLab
                 pageNum: 1,
                 TypeLocationToInsert.RB,
                 offsetInsertion: new Point(20, 0),
-                onFail
-                );
+                onFail,
+                isFirstEntry: false
+                ) ;
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
                 stringToInsert: cboDateSymbol.Text[cboDateSymbol.Text.Length - 1].ToString(),
-                fontSize: 30,
+                fontSize: 25,
                 targetString: PmData.TargetStrForSymble,
                 numEntryTargetString: 1,
                 reader,
                 writer,
                 pageNum: 1,
                 TypeLocationToInsert.RB,
-                offsetInsertion: new Point(43, -5),
-                onFail
+                offsetInsertion: new Point(43, -4),
+                onFail,
+                isFirstEntry:false
                 );
         }
+        private void InsertWhiteRectangel(string fileName, PdfReader reader, PdfWriter writer, OnFail onFail)
+        {
+            iTextSharp.text.Image imgfoot = iTextSharp.text.Image.GetInstance(Properties.Resources.белый_прмоугольник, System.Drawing.Imaging.ImageFormat.Png);
+            imgfoot.ScaleAbsolute(550, 10);
 
+            PDFTextExtractionStrategy.InsertImageToPDF(
+                fileName,
+                imgfoot,
+                targetString: "Выписка о результатах поверки",
+                numEntryTargetString: 1,
+                reader,
+                writer,
+                pageNum: 1,
+                TypeLocationToInsert.LB,
+                offsetInsertion: new Point(0, 0),
+                onFail,
+                isFirstEntry:false);
+           
+        }
+        private void InsertMaskRST(string fileName, PdfReader reader, PdfWriter writer)
+        {
+            iTextSharp.text.Image imgfoot = null;
+            imgfoot = iTextSharp.text.Image.GetInstance(Properties.Resources.белый_прмоугольник, System.Drawing.Imaging.ImageFormat.Png);
+            imgfoot.ScaleAbsolute(100, 80);
+            PDFTextExtractionStrategy.InsertImageToPDF(
+                fileName,
+                imgfoot,
+                reader,
+                writer,
+                pageNum: 1,
+                offsetInsertion: new Point(0, (int)writer.GetImportedPage(reader,1).Height-(int)imgfoot.ScaledHeight),
+                isFirstEntry: false
+                );
+        }
         private void InsertNameHeadMetrology(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
@@ -204,7 +249,8 @@ namespace ForLab
                 pageNum: pageNum,
                 TypeLocationToInsert.LT,
                 offsetInsertion: new Point(x: 0, y: 10),
-                onFail);
+                onFail,
+                isFirstEntry:false);
         }
 
         private void InsertPosition(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
@@ -219,22 +265,24 @@ namespace ForLab
                 pageNum: pageNum,
                 TypeLocationToInsert.LT,
                 offsetInsertion: new Point(x: 0, y: 10),
-                onFail);
+                onFail,
+                isFirstEntry: false);
         }
 
         private static void InsertRegNum(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: Constatnts.RegNumber,
-                targetString: Constatnts.TargetStrForRegNumber,
+                stringToInsert: PmData.RegNumber,
+                targetString: PmData.TargetStrForRegNumber,
                 numEntryTargetString: 1,
                 reader,
                 writer,
                 pageNum: pageNum,
                 TypeLocationToInsert.RB,
                 offsetInsertion: new Point(x: 0, y: 2),
-                onFail);
+                onFail, 
+                isFirstEntry: true);
         }
         private void chkIsElectronic_CheckedChanged(object sender, EventArgs e)
         {
@@ -249,7 +297,7 @@ namespace ForLab
                 cboDateSymbol.Text = "Год поверки";
             }
         }
-        protected virtual bool IsFileLocked(FileInfo file)
+        public bool IsFileLocked(FileInfo file)
         {
             FileStream stream = null;
             try
@@ -274,6 +322,15 @@ namespace ForLab
         private void Form1_Load(object sender, EventArgs e)
         {
             LoadAllComboboxes();
+            LoadlblCertificateLog();
+        }
+
+        private void LoadlblCertificateLog()
+        {
+            if (PmData.FileInfoCertificateLog != null)
+            {
+                lblCertificateLog.Text = PmData.FileInfoCertificateLog.FullName;
+            }
         }
 
         private void LoadAllComboboxes()
@@ -403,6 +460,77 @@ namespace ForLab
             PmData.ListDateSimbols.RemoveAt(cboDateSymbol.SelectedIndex);
             DAO.binWriteObjectToFile(PmData.ListDateSimbols, PmData.PathListDateSymbol);
             LoadAllComboboxes();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void butSetcertificateLog_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            
+            if (fileDialog.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+            PmData.FileInfoCertificateLog = new FileInfo(fileDialog.FileName);
+            lblCertificateLog.Text = fileDialog.FileName.ToString();
+            DAO.binWriteObjectToFile(PmData.FileInfoCertificateLog, PmData.PathFileInfoCertificateLog);
+        }
+
+        private void butInsertInCertificateLog_Click(object sender, EventArgs e)
+        {
+            if (PmData.FileInfoCertificateLog == null)
+            {
+                MessageBox.Show("Не выбран журнал");
+                return;
+            }
+
+            if (PmData.WordApplication == null)
+            {
+                PmData.WordApplication = new Word.Application();
+                PmData.WordApplication.Visible = true;
+            }
+            
+            if (PmData.CertificateLogFile == null)
+            {
+                PmData.CertificateLogFile = PmData.WordApplication.Documents.Open(PmData.FileInfoCertificateLog.FullName);
+            }
+
+            try
+            {
+                Word.Table tbl = PmData.CertificateLogFile.Tables[1];
+                tbl.Rows.Add();
+                tbl.Rows[tbl.Rows.Count].Cells[1].Range.Text = (tbl.Rows.Count - 1).ToString();
+                tbl.Rows[tbl.Rows.Count].Cells[2].Range.Text = txtNumCertificate.Text;
+                tbl.Rows[tbl.Rows.Count].Cells[3].Range.Text = DateTime.Now.ToShortDateString();
+                PmData.CertificateLogFile.Save();
+                PmData.CertificateLogFile.Activate();
+            }
+            catch
+            {
+                try
+                {
+                    PmData.CertificateLogFile = PmData.WordApplication.Documents.Open(PmData.FileInfoCertificateLog.FullName);
+                    Word.Table tbl = PmData.CertificateLogFile.Tables[1];
+                    tbl.Rows.Add();
+                    tbl.Rows[tbl.Rows.Count].Cells[1].Range.Text = (tbl.Rows.Count - 1).ToString();
+                    tbl.Rows[tbl.Rows.Count].Cells[2].Range.Text = txtNumCertificate.Text;
+                    tbl.Rows[tbl.Rows.Count].Cells[3].Range.Text = DateTime.Now.ToShortDateString();
+                    PmData.CertificateLogFile.Save();
+                    PmData.WordApplication.Activate();
+                    PmData.CertificateLogFile.Activate();
+                }
+                catch
+                {
+                    MessageBox.Show("Что-то пошло не так, возможно файл журнала заблокирован другим пользователем");
+                }
+            }
+            
+           
+            
+           
         }
     }
 

@@ -30,7 +30,7 @@ namespace ForLab
             catch
             {
             }
-            
+
             return MethodResultStatus.Fail;
         }
         public static Type binReadFileToObject<Type>(Type serObject, string fullPathFileName, out MethodResultStatus methodResultStatus)
@@ -54,6 +54,26 @@ namespace ForLab
             methodResultStatus = MethodResultStatus.Fail;
             return serObject;
         }
+        static public bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+            try
+            {
+                stream = file.Open(FileMode.OpenOrCreate, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                {
+                    stream.Close();
+                }
 
+            }
+            return false;
+        }
     }
 }

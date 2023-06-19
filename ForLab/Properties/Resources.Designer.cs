@@ -63,6 +63,36 @@ namespace ForLab.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap белый_прмоугольник {
+            get {
+                object obj = ResourceManager.GetObject("белый_прмоугольник", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap красный_прямоугольник {
+            get {
+                object obj = ResourceManager.GetObject("красный_прямоугольник", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap красный_прямоугольник1 {
+            get {
+                object obj = ResourceManager.GetObject("красный_прямоугольник1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Первичная_поверка {
             get {
                 object obj = ResourceManager.GetObject("Первичная_поверка", resourceCulture);

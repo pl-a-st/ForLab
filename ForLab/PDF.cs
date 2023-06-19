@@ -51,14 +51,8 @@ namespace ForLab
     }
     public class PDFTextExtractionStrategy : LocationTextExtractionStrategy
     {
-        //Hold each coordinate
         public List<RectAndText> myPoints = new List<RectAndText>();
-
-
-        //The string that we're searching for
         public String TextToSearchFor { get; set; }
-
-        //How to compare strings
         public System.Globalization.CompareOptions CompareOptions { get; set; }
 
         public PDFTextExtractionStrategy(System.Globalization.CompareOptions compareOptions = System.Globalization.CompareOptions.None)
@@ -66,6 +60,7 @@ namespace ForLab
             
             this.CompareOptions = compareOptions;
         }
+
         public override void RenderText(TextRenderInfo renderInfo)
         {
             base.RenderText(renderInfo);
@@ -123,7 +118,7 @@ namespace ForLab
             }
             return targetRectAndText;
         }
-        public static void InsetStringToPDF(string fileName, string stringToInsert, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert TypelocationToInsert, Point offsetInsertion, OnFail onFail)
+        public static void InsetStringToPDF(string fileName, string stringToInsert, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert TypelocationToInsert, Point offsetInsertion, OnFail onFail, bool isFirstEntry)
         {
             string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "TAHOMA.TTF");
             var baseFont = BaseFont.CreateFont(ttf, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
@@ -159,11 +154,14 @@ namespace ForLab
                 PointToInsert.Y,
                 rotation: 0);
             contentByte.EndText();
-            contentByte.AddTemplate(importedPage, 0, 0);
+            if (isFirstEntry)
+            {
+                contentByte.AddTemplate(importedPage, 0, 0);
+            }
         }
-        public static void InsetStringToPDF(string fileName, string stringToInsert, float fontSize, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert TypelocationToInsert, Point offsetInsertion, OnFail onFail)
+        public static void InsetStringToPDF(string fileName, string stringToInsert, float fontSize, string targetString, int numEntryTargetString, PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert TypelocationToInsert, Point offsetInsertion, OnFail onFail, bool isFirstEntry)
         {
-            string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "TAHOMA.TTF");
+            string ttf = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "TAHOMABD.TTF");
             var baseFont = BaseFont.CreateFont(ttf, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             var importedPage = writer.GetImportedPage(reader, pageNum);
             var contentByte = writer.DirectContent;
@@ -184,7 +182,10 @@ namespace ForLab
                     TryWtiteLog(fileName, stringToInsert, targetString);
                 }
                 contentByte.EndText();
-                contentByte.AddTemplate(importedPage, 0, 0);
+                if (isFirstEntry)
+                {
+                    contentByte.AddTemplate(importedPage, 0, 0);
+                }
                 return;
             }
 
@@ -227,7 +228,7 @@ namespace ForLab
         }
 
         public static void InsertImageToPDF(string fileName, iTextSharp.text.Image img, string targetString, int numEntryTargetString,
-            PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert locationToInsert, Point offsetInsertion, OnFail onFail)
+            PdfReader reader, PdfWriter writer, int pageNum, TypeLocationToInsert locationToInsert, Point offsetInsertion, OnFail onFail, bool isFirstEntry)
         {
             var extractionStrategy = new PDFTextExtractionStrategy();
             var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
@@ -254,11 +255,28 @@ namespace ForLab
             iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
             Point PointToInsert = GetPointToInsert(locationToInsert, offsetInsertion, rect);
             img.SetAbsolutePosition(PointToInsert.X, PointToInsert.Y);
-            contentByte.AddImage(img);
+
+            if (isFirstEntry)
+            {
+                contentByte.AddTemplate(importedPage, 0, 0);
+            }
+            contentByte.AddImage(img, true);
             contentByte.EndText();
-            contentByte.AddTemplate(importedPage, 0, 0);
-           
-            
+        }
+        public static void InsertImageToPDF(string fileName, iTextSharp.text.Image img,  PdfReader reader, PdfWriter writer, int pageNum, Point offsetInsertion, bool isFirstEntry)
+        {
+            var extractionStrategy = new PDFTextExtractionStrategy();
+            var extractor = PdfTextExtractor.GetTextFromPage(reader, pageNum, extractionStrategy);
+            var importedPage = writer.GetImportedPage(reader, pageNum);
+            var contentByte = writer.DirectContent;
+            contentByte.BeginText();
+            img.SetAbsolutePosition(offsetInsertion.X, offsetInsertion.Y);
+            if (isFirstEntry)
+            {
+                contentByte.AddTemplate(importedPage, 0, 0);
+            }
+            contentByte.AddImage(img,true);
+            contentByte.EndText();
         }
         private static Point GetPointToInsert(TypeLocationToInsert locationToInsert, Point offsetInsertion, iTextSharp.text.Rectangle rect)
         {
