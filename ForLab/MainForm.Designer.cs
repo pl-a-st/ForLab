@@ -51,8 +51,8 @@ namespace ForLab
             this.butInsertInCertificateLog = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.txtNumCertificate = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.txtNumCertificate = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -102,9 +102,9 @@ namespace ForLab
             this.chkIsMulty.AutoSize = true;
             this.chkIsMulty.Location = new System.Drawing.Point(240, 197);
             this.chkIsMulty.Name = "chkIsMulty";
-            this.chkIsMulty.Size = new System.Drawing.Size(191, 30);
+            this.chkIsMulty.Size = new System.Drawing.Size(196, 30);
             this.chkIsMulty.TabIndex = 4;
-            this.chkIsMulty.Text = "Электронное свидетельство \r\nдля всех свидетельств в папке. ";
+            this.chkIsMulty.Text = "Модифицировать свидетельство \r\nдля всех свидетельств в папке. ";
             this.chkIsMulty.UseVisualStyleBackColor = true;
             this.chkIsMulty.CheckedChanged += new System.EventHandler(this.chkIsMulty_CheckedChanged);
             // 
@@ -279,13 +279,6 @@ namespace ForLab
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             // 
-            // txtNumCertificate
-            // 
-            this.txtNumCertificate.Location = new System.Drawing.Point(6, 131);
-            this.txtNumCertificate.Name = "txtNumCertificate";
-            this.txtNumCertificate.Size = new System.Drawing.Size(284, 20);
-            this.txtNumCertificate.TabIndex = 11;
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
@@ -294,6 +287,13 @@ namespace ForLab
             this.label5.Size = new System.Drawing.Size(120, 13);
             this.label5.TabIndex = 12;
             this.label5.Text = "Номер свидетельства";
+            // 
+            // txtNumCertificate
+            // 
+            this.txtNumCertificate.Location = new System.Drawing.Point(6, 131);
+            this.txtNumCertificate.Name = "txtNumCertificate";
+            this.txtNumCertificate.Size = new System.Drawing.Size(284, 20);
+            this.txtNumCertificate.TabIndex = 11;
             // 
             // MainForm
             // 

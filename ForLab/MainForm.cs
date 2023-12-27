@@ -49,20 +49,7 @@ namespace ForLab
                     return;
                 }
                 FileSystemInfo[] files = new DirectoryInfo(FolderDialog.FileName).GetFileSystemInfos();
-                foreach (FileSystemInfo info in files)
-                {
-                    if (info.Extension.ToLower() != ".pdf")
-                    {
-                        continue;
-                    }
-                    string inputFile = info.FullName;
-                    string outputFile = info.FullName.Replace(".pdf", " мод.pdf");
-                    if (IsFileLocked(new FileInfo(outputFile)))
-                    {
-                        continue;
-                    }
-                    await InsertDataInFile(inputFile, outputFile, OnFail.Log);
-                }
+                await Task.Run(() => InsertDataInManyFiles(files, chkIsElectronic.Checked));
             }
             if (!chkIsMulty.Checked)
             {
@@ -71,6 +58,27 @@ namespace ForLab
             label.Dispose();
             progressBar.Dispose();
         }
+
+        private async Task InsertDataInManyFiles(FileSystemInfo[] files, bool IsElectronic)
+        {
+            await Task.Delay(10);
+            foreach (FileSystemInfo info in files)
+            {
+                if (info.Extension.ToLower() != ".pdf")
+                {
+                    continue;
+                }
+                string inputFile = info.FullName;
+                string outputFile = info.FullName.Replace(".pdf", " мод.pdf");
+                if (IsFileLocked(new FileInfo(outputFile)))
+                {
+                    continue;
+                }
+                await InsertDataInFile(inputFile, outputFile, OnFail.Log, IsElectronic );
+                
+            }
+        }
+
         private async Task GetFilePathAndInsertData(OnFail onFail)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
@@ -86,12 +94,13 @@ namespace ForLab
                 MessageBox.Show("Данное свидетельство уже модифицировалось и итоговый файл открыт, для перезаписи необходимо закрыть файл и выбрать его снова");
                 return;
             }
-            await InsertDataInFile(inputFile, outputFile, onFail);
+            await InsertDataInFile(inputFile, outputFile, onFail, chkIsElectronic.Checked);
             await Task.Factory.StartNew(() => System.Diagnostics.Process.Start(outputFile));
             await Task.Delay(2500);
         }
-        private async Task InsertDataInFile(string inputFile, string outputFile, OnFail onFail)
+        private async Task InsertDataInFile(string inputFile, string outputFile, OnFail onFail,bool IsElectronic)
         {
+            await Task.Delay(10);
             using (var reader = new PdfReader(inputFile))
             {
                 using (var fileStream = new FileStream(outputFile, FileMode.Create, FileAccess.Write))
@@ -105,7 +114,10 @@ namespace ForLab
                         InsertRegNum(inputFile, reader, writer, i, onFail);
                         InsertPosition(inputFile, reader, writer, i, onFail);
                         InsertNameHeadMetrology(inputFile, reader, writer, i, onFail);
-                        InsertWorkSymbol(inputFile, reader, writer, onFail);
+                        if (IsElectronic)
+                        {
+                            InsertWorkSymbol(inputFile, reader, writer, onFail);
+                        }
                         InsertWhiteRectangel(inputFile, reader, writer, onFail);
                         InsertMaskRST(inputFile, reader, writer);
                     }
@@ -141,10 +153,11 @@ namespace ForLab
 
         private void InsertWorkSymbol(string fileName, PdfReader reader, PdfWriter writer, OnFail onFail)
         {
-            if (!chkIsMulty.Checked && !chkIsElectronic.Checked)
-            {
-                return;
-            }
+            string dateSymbol1 = string.Empty;
+            Invoke(new Action(() => { dateSymbol1 = cboDateSymbol.Text[cboDateSymbol.Text.Length - 2].ToString(); }));
+            string dateSymbol2 = string.Empty;
+            Invoke(new Action(() => { dateSymbol2 = cboDateSymbol.Text[cboDateSymbol.Text.Length - 1].ToString(); }));
+
             iTextSharp.text.Image imgfoot = iTextSharp.text.Image.GetInstance(Properties.Resources.прямоугольник_для_штампа, System.Drawing.Imaging.ImageFormat.Png);
             imgfoot.ScaleAbsolute(60, 35);
 
@@ -162,7 +175,7 @@ namespace ForLab
                 isFirstEntry: false);
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: cboDateSymbol.Text[cboDateSymbol.Text.Length - 2].ToString(),
+                stringToInsert: dateSymbol1,
                 fontSize: 25,
                 targetString: PmData.TargetStrForSymble,
                 numEntryTargetString: 1,
@@ -190,7 +203,7 @@ namespace ForLab
                 ) ;
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: cboDateSymbol.Text[cboDateSymbol.Text.Length - 1].ToString(),
+                stringToInsert: dateSymbol2,
                 fontSize: 25,
                 targetString: PmData.TargetStrForSymble,
                 numEntryTargetString: 1,
@@ -239,9 +252,11 @@ namespace ForLab
         }
         private void InsertNameHeadMetrology(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
+            string nameHead = string.Empty;
+            Invoke(new Action(() => { nameHead = cboNameHead.Text; }));
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: cboNameHead.Text,
+                stringToInsert: nameHead,
                 targetString: PmData.TargetStrForNameHead,
                 numEntryTargetString: 2,
                 reader,
@@ -255,9 +270,11 @@ namespace ForLab
 
         private void InsertPosition(string fileName, PdfReader reader, PdfWriter writer, int pageNum, OnFail onFail)
         {
+            string headPosition = string.Empty;
+            Invoke(new Action( () => { headPosition = cboHeadPosition.Text; }));
             PDFTextExtractionStrategy.InsetStringToPDF(
                 fileName,
-                stringToInsert: cboHeadPosition.Text,
+                stringToInsert: headPosition,
                 targetString: PmData.TargetStrForPosHead,
                 numEntryTargetString: 1,
                 reader,

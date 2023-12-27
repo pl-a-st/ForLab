@@ -141,7 +141,11 @@ namespace ForLab
                     TryWtiteLog(fileName, stringToInsert, targetString);
                 }
                 contentByte.EndText();
-                contentByte.AddTemplate(importedPage, 0, 0);
+                if (isFirstEntry)
+                {
+                    contentByte.AddTemplate(importedPage, 0, 0);
+                }
+               
                 return;
             }
 
@@ -198,7 +202,11 @@ namespace ForLab
                 PointToInsert.Y,
                 rotation: 0);
             contentByte.EndText();
-            contentByte.AddTemplate(importedPage, 0, 0);
+            if (isFirstEntry)
+            {
+                contentByte.AddTemplate(importedPage, 0, 0);
+            }
+            
         }
         /// <summary>
         /// Пытается записать лог в туже папку куда пишет файл.
@@ -249,7 +257,10 @@ namespace ForLab
                     TryWtiteLog(fileName, "картинки", targetString);
                 }
                 contentByte.EndText();
-                contentByte.AddTemplate(importedPage, 0, 0);
+                if (isFirstEntry)
+                {
+                    contentByte.AddTemplate(importedPage, 0, 0);
+                }
                 return;
             }
             iTextSharp.text.Rectangle rect = LisFoundStringInfo[numEntryTargetString - 1].Rect;
